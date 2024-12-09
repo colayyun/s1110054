@@ -39,6 +39,12 @@ import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,18 +70,43 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
 
+
+    val colors = listOf(
+        Color(0xff95fe95),
+        Color(0xfffdca0f),
+        Color(0xfffea4a4),
+        Color(0xffa5dfed)
+    )
+    var currentIndex by remember { mutableStateOf(0) }
+
+
+
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xff95fe95)),
+            .background(colors[currentIndex])
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures { change, dragAmount ->
+                    change.consume() // 消耗手勢事件
+                    if (dragAmount > 0) {
+                        // 向右滑
+                        currentIndex = (currentIndex - 1 + colors.size) % colors.size
+                    } else {
+                        // 向左滑
+                        currentIndex = (currentIndex + 1) % colors.size
+                    }
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
-        Column (
+        Column(
 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(16.dp)
-        ){
+        ) {
 
 
             Text(
@@ -115,15 +146,10 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 ) {
                     Text("結束App")
                 }
-
             }
         }
     }
-
 }
-
-
-
 
 
 
