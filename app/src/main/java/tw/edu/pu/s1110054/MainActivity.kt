@@ -36,14 +36,21 @@ import androidx.compose.material3.Button
 
 import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+
+import androidx.compose.foundation.layout.size
+
 
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +68,8 @@ class MainActivity : ComponentActivity() {
                         name ="2024期末上機考(資管三B洪可芸)",
                         modifier = Modifier.padding(innerPadding)
                     )
+
+                    val scale = resources.displayMetrics.density
                 }
             }
         }
@@ -78,6 +87,22 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         Color(0xffa5dfed)
     )
     var currentIndex by remember { mutableStateOf(0) }
+    var gameTime by remember { mutableStateOf(0) }
+    var mariaPosition by remember { mutableStateOf(0f) }
+    var gameEnded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        while (!gameEnded) {
+            delay(1000L)
+            gameTime += 1
+            mariaPosition += 50f
+
+            if (mariaPosition > 1080f) {
+                gameEnded = true
+            }
+        }
+    }
+
 
 
 
@@ -89,12 +114,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             .background(colors[currentIndex])
             .pointerInput(Unit) {
                 detectHorizontalDragGestures { change, dragAmount ->
-                    change.consume() // 消耗手勢事件
-                    if (dragAmount > 0) {
-                        // 向右滑
+                    change.consume()
+                    if (dragAmount > 100) {
+
                         currentIndex = (currentIndex - 1 + colors.size) % colors.size
                     } else {
-                        // 向左滑
                         currentIndex = (currentIndex + 1) % colors.size
                     }
                 }
@@ -122,7 +146,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             )
 
             Text(
-                text = "遊戲持續時間 0 秒",
+                text = "遊戲持續時間 $gameTime 秒",
                 modifier = modifier
             )
 
@@ -131,6 +155,14 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                 text = "您的成績 0 分",
                 modifier = modifier
             )
+
+            if (gameEnded) {
+                Text(
+                    text = "遊戲結束！",
+                    fontSize = 16.sp,
+                    color = Color.Red
+                )
+            }
 
             val activity = (LocalContext.current as? Activity)
 
@@ -147,9 +179,22 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                     Text("結束App")
                 }
             }
+
+            val virusImage = arrayListOf(R.drawable.maria2)
+            Image(
+                painter = painterResource(id = virusImage[0]),
+                contentDescription = "病毒",
+                modifier = Modifier
+                    .size(80.dp)
+                    .offset { IntOffset(1000, y = 200) }
+            )
+
+
         }
     }
 }
+
+
 
 
 
